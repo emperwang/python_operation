@@ -4,7 +4,7 @@
 import logging
 
 logging.basicConfig(filename="test.log", level=logging.DEBUG, format="%(asctime)s %(filename)s[line:%(lineno)d] %(message)s",
-                    datefmt="datefmt='%Y-%m-%d %X'")
+                    datefmt="%Y-%m-%d %X")
 
 logging.info("info logging")
 logging.debug("debug logging")
