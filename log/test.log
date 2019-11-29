@@ -1,0 +1,5 @@
+datefmt='2019-11-29 12:03:26' loging.py[line:9] info logging
+datefmt='2019-11-29 12:03:26' loging.py[line:10] debug logging
+datefmt='2019-11-29 12:03:26' loging.py[line:11] warning logging
+datefmt='2019-11-29 12:03:26' loging.py[line:12] error logging
+datefmt='2019-11-29 12:03:26' loging.py[line:13] critical logging
