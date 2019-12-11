@@ -81,10 +81,15 @@ class analyseJson():
 
     # 得到最终的分配方案
     def __process(self, content):
-        print("__process content: ", content)
+        print("__process content: ")
         for itm in content['partitions']:
             itm['replicas'] = self.__get_replica()
-        print("final :",content)
+        print("final :", content)
+        final_file = (BASE + "/" + "final.json").replace("\\","/")
+        print("final_file path : ", final_file)
+        print("json :", json.dumps(content))
+        with open(final_file, 'w+') as f:
+            f.write(json.dumps(content))
 
 def main():
     fileName = "sourceOne.json"
