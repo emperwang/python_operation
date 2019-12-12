@@ -87,7 +87,8 @@ def get_json_from_cmd():
     if len(sys.argv) > 2:
         print("cmd_with_path is: ", sys.argv[1])
     else:
-        print("Usage : ", sys.argv[0], " cmd_with_path, zk_url, topics_path , ids(like: 0,1,2), factor")
+        #print("Usage : ", sys.argv[0], " cmd_with_path, zk_url, topics_path , ids(like: 0,1,2), factor")
+        print("Usage : ", sys.argv[0], " cmd_with_path, zk_url, topics , ids(like: 0,1,2), factor")
         sys.exit(1)
     return [sys.argv[0], sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]]
 
@@ -95,9 +96,24 @@ def get_json_from_cmd():
 def main():
     args = get_json_from_cmd()
     print(args)
-    final_cmd = args[1] + " " + " --zookeeper " + args[2]+" --topics-to-move-json-file  "+args[3]+" --broker-list " + args[4] \
+    tpss = []
+    tps = {}
+    if "," in sys.argv[3]:
+        topics = sys.argv[3]
+        for i in topics.splie(","):
+            tps["topic"] = i
+            tpss.append(tps)
+    else:
+        tps["topic"] = sys.argv[3]
+        tpss.append(tps)
+    final_topics = {"topics": tpss, "version": 1}
+    print("final_topics :", final_topics)
+    topics_path = BASE+"/" + "topics.json"
+    with open(topics_path, "w+") as tt:
+        tt.write(json.dumps(final_topics))
+    final_cmd = args[1] + " --zookeeper " + args[2]+" --topics-to-move-json-file  "+ topics_path +" --broker-list " + args[4] \
                     + " --generate"
-    generate_cmd = args[1] + " " + " --zookeeper " + args[2]+" --reassignment-json-file " + BASE +"/" + "final.json" +" --execute"
+    generate_cmd = args[1] + " --zookeeper " + args[2]+" --reassignment-json-file " + BASE +"/" + "final.json" +" --execute"
     print("final cmd :", final_cmd)
     print("execute cmd: ", generate_cmd)
     va = os.popen(final_cmd)
@@ -128,7 +144,13 @@ python replicas.py
 2           # 副本因子
 """
 """
-
+usage:  第二版本: 是用topics
+python replicas.py  
+/mnt/kafka_2.11-2.2.0/bin/kafka-reassign-partitions.sh  : 命令全路径
+'name1:2181'  : zk url
+topics, example topics1,topics2 :            # 需要修改的topic, 多个topics使用逗号分隔  
+'0,1,2'     # broker ids
+2           # 副本因子
 """
 
 if __name__ == '__main__':
