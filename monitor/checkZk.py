@@ -36,6 +36,8 @@ def main():
             succhost += 1
     if succhost > numhosts/2 :
         print("zk cluster running")
+    else:
+        print("zk cluster not healthy")
 
 # python checkZk.py -c /mnt/zookeeper-3.4.5-cdh5.12.0/bin/zkServer.sh  -i name1,node1,node2 2>/dev/null
 
