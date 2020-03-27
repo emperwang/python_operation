@@ -1,0 +1,136 @@
+脚本处理如下：
+
+入参 rmUID、VNFInstanceId、f5 vip、redis ip
+
+f5 vip 用于下面security、lifecycle接口调用的ip部分。需要注意的是：site环境这两个端口是一样的，测试环境security、lifecycle端口是不一样的。
+
+如下：
+
+处理步骤：
+1、首先获取token：
+security:
+获取token：
+curl -kv -X POST http://172.16.21.43:8086/eoca/v1.0/token -H 'Content-Type: application/json' -d '{"username":"internal_am","password":"UXFxMTIzNDU2"}'
+response:
+{"token": "eyJhbGciOiJIUzI1NiIsInVzZXJfaWQiOiJmNmRkZThkNDI2Y2RiNTZiMWNhZGQwYjNhNjRjOTY0ZCIsInR5cCI6IkpXVCIsInNwZSI6dHJ1ZSwiZGVmZXIiOmZhbHNlfQ.eyJpYXQiOjE1NjgxOTI1MjUsInJvbGUiOiIiLCJleHAiOjE1NjgyNzg5MjV9.lh6pgWW2Zcz0RAUt2W4HpDhKaKiDsxtzy0CA8KzPluU", "expires_at": "2019-09-12T09:02:05"}
+
+2、查询vnf详情：
+curl -kv -X GET http://172.16.21.43:8086/eoca/v1.0/wf/info/vnf/id_in_m/E105 -H 'Content-Type: application/json' -H 'X-Auth-Token:eyJhbGciOiJIUzI1NiIsInVzZXJfaWQiOiIyODRiOGQ1ODhhYjQwN2NkNDRjOWM3N2I4YWRlNWM3YyIsInR5cCI6IkpXVCIsInNwZSI6dHJ1ZSwiZGVmZXIiOmZhbHNlfQ.eyJpYXQiOjE1NzI0MzIzMDQsInJvbGUiOiIiLCJleHAiOjE1NzI1MTg3MDR9.YvjvJwrPFO-CbUV9NnJ5xStl7ruJzVUDhU4jKF4jO3U'
+< HTTP/1.1 200 OK
+< Date: Wed, 11 Sep 2019 09:36:26 GMT
+< Content-Type: application/json;charset=utf-8
+< Content-Length: 1087
+< Server: Jetty(9.4.8.v20171121)
+<
+{
+    "o_vnf_instance_id": "5",
+    "o_vnf_instance_status": 1,
+    "product_name": "SGSN-VMME-3.0",
+    "project_name": "ericsson",
+    "region_path": "/0HN/0GD",
+    "vendor": "ER",
+    "vim_id": "vim4",
+    "vm_list": [
+        {
+            "id": "be3d6175-403c-4ee6-85fc-4e6894cd2850",
+            "name": "vmme-GPB-E150"
+        },
+        {
+            "id": "314372d5-c7bd-4c35-b66f-46a036bf8e8e",
+            "name": "vmme-GPB-E135"
+        },
+        {
+            "id": "df5112e0-b732-4fe0-ab81-86252acba9de",
+            "name": "vmme-GPB-E134"
+        },
+        {
+            "id": "a30ba086-1262-45b3-9437-aee2e2a99917",
+            "name": "vmme-GPB-E133"
+        },
+        {
+            "id": "775764a0-3b4c-45bf-a702-f278fd77b6a9",
+            "name": "vmme-GPB-E136"
+        }
+    ],
+    "vnf_name": "test081509",
+    "vnf_type": "vmme",
+    "vnfm_id": "VNFM1",
+    "vnfm_vnf_instance_id": "E105"
+}
+
+获取其中的：
+product_name值 填充为 productName值。
+region_path值填充为 regionPath值。
+vendor 值 填充为 vendor 值。
+vim_id 值 填充为 vimId 值。
+vm_list 值填充为 vmIdList值。
+vnf_name 值填充为 vnfName 值。
+vnf_type 值 填充为 vnfType值。
+vnfm_vnf_instance_id值填充为 vnfmVnfInstanceId值。
+
+3、根据vendor的值，调用如下接口，获取vendorName填充到vendorName字段中。
+
+curl -kv -X GET http://172.16.21.43:8086/eoca/v1.0/wf/conf/vendor -H 'Content-Type: application/json' -H 'X-Auth-Token: ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblZ6WlhKZmFXUWlPaUl4TTJWak5XTmtPRE01T1dZMFpEZ3lNMlJqWmpVek9EZ3lNV1V6WkdJeFpTSXNJblI1Y0NJNklrcFhWQ0lzSW5Od1pTSTZkSEoxWlN3aVpHVm1aWElpT21aaGJITmxmUS5leUpwWVhRaU9qRTFOemc1TmpZMU5EQXVNQ3dpY205c1pTSTZJaUlzSW1WNGNDSTZNVFUzT1RBMU1qazBNQzR3ZlEuMXFjU1VXMzJyX0xMTUp0XzVrdDI4dzRBYVdnTFVwS2xvQndxRW9QLVV4OA=='
+
+< HTTP/1.1 200 OK
+< Date: Wed, 11 Sep 2019 10:17:43 GMT
+< Content-Type: application/json;charset=utf-8
+< Content-Length: 773
+< Server: Jetty(9.4.8.v20171121)
+<
+* Connection #0 to host 10.163.161.188 left intact
+[{"vendor_id":"HW","vendor_name":"华为"},{"vendor_id":"ZX","vendor_name":"中兴"},{"vendor_id":"FH","vendor_name":"烽火"},{"vendor_id":"ER","vendor_name":"爱立信"},{"vendor_id":"NS","vendor_name":"诺西"},{"vendor_id":"AS","vendor_name":"上海贝尔（阿朗）"},{"vendor_id":"DT","vendor_name":"大唐"},{"vendor_id":"PT","vendor_name":"普天"},{"vendor_id":"SS","vendor_name":"江西山水"},{"vendor_id":"OP","vendor_name":"和记奥普泰"},{"vendor_id":"GW","vendor_name":"格林威尔"},{"vendor_id":"NE","vendor_name":"浩瀚深度"},{"vendor_id":"NB","vendor_name":"诺基亚贝尔"},{"vendor_id":"HC","vendor_name":"华三"},{"vendor_id":"CI","vendor_name":"思科"},{"vendor_id":"HY","vendor_name":"杭研"},{"vendor_id":"JP","vendor_name":"Juniper"}]
+
+4、根据上面regionPath值，调用如下接口，获取省份列表填充到province字段中，多个省份以 英文 分号 分隔。
+
+curl -kv -X GET http://172.16.21.43:8086/eoca/v1.0/region_path/info?region_path=%2F0HDB%2F0JS -H "X-Auth-Token: eyJhbGciOiJIUzI1NiIsInVzZXJfaWQiOiJkYjA0M2YzZDhlYWNkMTNjYzRkMGVmMTM3YWQwN2JhNSIsInR5cCI6IkpXVCIsInNwZSI6dHJ1ZSwiZGVmZXIiOmZhbHNlfQ.eyJpYXQiOjE1NjgxOTI1OTYsInJvbGUiOiIiLCJleHAiOjE1NjgyNzg5OTZ9.11JRKEzINqoUrgfooVsu-lWHJXkIgm_ARMNCwZDrFoo"
+
+< HTTP/1.1 200 OK
+< Date: Wed, 11 Sep 2019 09:40:42 GMT
+< Server: Apache/2.4.6 (CentOS) mod_wsgi/3.4 Python/2.7.5
+< Content-Length: 50
+< Content-Type: application/json
+<
+{"province_abbr_list": ["JS"], "region_level": 2}
+
+5、根据上面vnfType值，调用如下接口，获取专业填充到 specialty字段中。
+
+curl -kv -X GET http://172.16.21.43:8086/eoca/v1.0/wf/conf/vnfspecialty_by_vnftype?vnf_type=SCEF -H 'Content-Type: application/json' -H 'X-Auth-Token: ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblZ6WlhKZmFXUWlPaUkyTUdZelptTXlZbUkwTnpFellUazFNekUyWTJWallXUTVOMlk1WTJZMllTSXNJblI1Y0NJNklrcFhWQ0lzSW5Od1pTSTZkSEoxWlN3aVpHVm1aWElpT21aaGJITmxmUS5leUpwWVhRaU9qRTFPREUxTnpJek5URXVNQ3dpY205c1pTSTZJaUlzSW1WNGNDSTZNVFU0TVRZMU9EYzFNUzR3ZlEuOEx5RGZKRDhBRHByQ0J4TnV3RGxES3ZDV0ZDc29wdkRMQm5iSmZtR2tiSQ=='
+< HTTP/1.1 200 OK
+< Date: Wed, 11 Sep 2019 11:58:30 GMT
+< Content-Type: application/json;charset=utf-8
+< Content-Length: 52
+< Server: Jetty(9.4.8.v20171121)
+<
+* Connection #0 to host 10.163.161.188 left intact
+[{"specialty_id":"HX","specialty_name":"核心网"}]
+
+6、根据上述步骤，组装的json数据，大体如下：
+{
+    "regionPath": "/0HN/0GD/3NFV-RP-HNGZ-01A-ER-01~NFV-P-HNGZ-01A-ER-01-GD-EPC-ER",
+    "vnfType": "MME",
+    "specialty": "NFV-vEPC",
+    "province": "GD",
+    "vimId": "NFV-RP-HNGZ-01A-ER-01",
+    "vendor": "ER",
+    "vmIdList": [
+        "f34f697e-66c1-43ed-8291-faf03ad39872",
+        "6416c909-53cb-46b2-9985-851512639d20",
+        "5393bf88-0af8-4ffc-a822-30638e80ea6d",
+        "0ce27741-ed0f-45a3-95aa-5c49617a1f33",
+        "d55f3f8a-60f6-4380-a4e3-24f235aa9f24",
+        "5ddbeef9-db2b-4d0b-b9c6-8a7387ee8823"
+    ],
+    "vendorName": "Ericsson",
+    "vnfmVnfInstanceId": "608e61da-633d-11ea-b4fc-fa163ef85503",
+    "productName": "SGSN-MME-2.0-tMME005ug_0114_002",
+    "vnfName": "vmmetest18_03111008"
+}
+
+将上述json类型转为字符串类型，使用hset命令存入redis key： fm:resource:vnf:vnfinstanceid_info 中，field为：入参的 VNFInstanceId，举例如下：
+hset fm:resource:vnf:vnfinstanceid_info {VNFInstanceId} {json string}
+
+7、设置另外两个redis key的值。
+
+hset fm:resource:vnf:vnfinstanceid_rmuid {VNFInstanceId} {rmUID}
+hset fm:resource:vnf:rmuid_vnfinstanceid {rmUID} {VNFInstanceId}
