@@ -86,11 +86,14 @@ class gen_json:
         req = urllib2.Request(finUrl, headers=regionHead)
         try:
             f = urllib2.urlopen(req)
-            provs = str(json.loads(f.read())['province_abbr_list'])
-            if provs.count(",") > 0:
-                provs = provs[1:len(provs) - 1].replace(",", ";")
-            # print("provs = {}".format(provs))
-            return provs
+            provlt = ""
+            provs = json.loads(f.read())['province_abbr_list']
+            if len(provs) == 1:
+                provlt = provs[0]
+            else:
+                for i in provs:
+                    provlt += i + r';'
+            return provlt[0:len(provlt)-1]
         except BaseException as ex:
             print("getRegionPath error :%s" % ex)
             exit(1)
@@ -147,12 +150,17 @@ class gen_json:
         dicFm['productName'] = self.vnfinfo['product_name']
         dicFm['vnfName'] = self.vnfinfo['vnf_name']
         fjson = json.dumps(dicFm)
+        fjson = + fjson.replace(r'"', r'\"')
+        ## 把json转换为可以直接作为redis的value的一个json串
+        # fjson = r'"'+ fjson.replace(r'"', r'\"') + r'"'
         return fjson
 
     # 插入reids的操作
     def _insertOperator(self, key, field, val):
         dstr = "/opt/redis-5.0.0/6379/redis-cli"
-        cmd = dstr+" -h {} -p 6379 -c hset {} {} {}".format(self.redisip, key, field,  val)
+        # 把传入的val作为一个value
+        cmd = dstr+' -h {} -p 6379 -c hset {} {} "{}"'.format(self.redisip, key, field,  val)
+        # cmd = dstr + " -h {} -p 6379 -c hset {} {} {}".format(self.redisip, key, field, val)
         # print("cmd = {}".format(cmd))
         rr = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, close_fds=True)
         errMsg = rr.stderr.readline()
