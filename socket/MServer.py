@@ -5,10 +5,10 @@ import socket
 
 
 def server():
-    server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
     port = 9999
-    server.bind((host,port))
+    server.bind((host, port))
     server.listen(10)
     while True:
         clientSocket, addr = server.accept()
