@@ -1,0 +1,21 @@
+l  监控脚本部署在FCAPS DP机器，以配置linux crontab任务方式，配置每分钟执行一次。脚本入参包括：ossgw服务IP、sm服务IP、告警积压阈值（暂定默认为3000）
+l  主要处理逻辑：
+a)       读取 /opt/ericsson/nfvo/fcaps/config/common/nfvo-state，判断当前节点是否为MASTER，如果不是，则退出。
+b)      脚本判断“ 主机名的最后1位 mod 3 = 当前分钟数 mod 3”，如果为False则不检查退出。
+c)       调用OSSGW API获取OSS列表
+d)      对每个OSS逐一检查，调用Kafka的查询消费者组命令，得到当前OSS所对应的消费者组对各个Topic的LAG，汇总所有LAG值（注意是对各Topic的LAG汇总值），如果超过阈值，在/opt/ericsson/nfvo/fcaps/work/sm/中写标记，可以touch一个以ossId开头拼接上”_pileup”字符串的文件，记录该OSS发生了队列积压，以便后续清除告警。（具体oss的检查方法见下面勇哥邮件）
+调用sm接口发送活动告警相关信息设置如下：
+key：NFVO_OSSmsgPileup
+level：L1
+object：使用ossId来填充
+content：kafka topic： {xxx}，超过积压阈值：{xxx}
+hostName：当前主机名
+eventTime：当前时间
+e)       如果LAG汇总值正常，并且之前该OSS发生过队列积压告警，则发清除告警给SM。并清除/opt/ericsson/nfvo/fcaps/work/sm/中的相应标记。
+调用sm接口发送清除告警相关信息设置如下：
+key：NFVO_OSSmsgPileup
+object：使用ossId来填充
+hostName：当前主机名
+eventTime：当前时间
+cleared：true
+f)        每次交互，在/opt/ericsson/nfvo/fcaps/runtime_log/sm/中写日志，日志文件按天输出，为脚本名称-{yyyy-mm-dd}.log。
