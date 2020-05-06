@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# coding=UTF-8
+#!/bin/env python
+# coding:UTF-8
 
 import subprocess
 import os
@@ -15,10 +15,24 @@ def __argparse():
     parse.add_argument('-i', '--host', action='store', dest='ip', required=True, help='kafka listening ip')
     return parse.parse_args()
 
+def _checkrunning():
+    cmd = "service kafka status"
+    st = "service kafka start"
+    rr = os.popen(cmd)
+    res = rr.readline()
+    # print("check running:{}".format(res))
+    if "no" in res:
+        os.popen(st)
+        print(1)
+        sys.exit(1)
+    else:
+        print(0)
+
 
 def main():
     pms = __argparse()
     cmds = dict(cmd=pms.cmd, port=pms.port, ip=pms.ip)
+    _checkrunning()
     fcmd = "{}  --bootstrap-server {}:{} --describe --topic __consumer_offsets".format(cmds['cmd'], cmds['ip'], cmds['port'])
     #rr = os.popen(fcmd)
     #print(rr, type(rr) )
