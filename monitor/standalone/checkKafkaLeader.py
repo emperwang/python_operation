@@ -25,8 +25,6 @@ def _checkrunning():
         os.popen(st)
         print(1)
         sys.exit(1)
-    else:
-        print(0)
 
 
 def main():
