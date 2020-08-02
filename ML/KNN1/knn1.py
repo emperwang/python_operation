@@ -1,6 +1,6 @@
 #!/bin/env python
 # coding=utf-8
-
+# py 2.7
 from numpy import *
 import operator
 
