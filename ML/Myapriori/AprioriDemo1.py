@@ -31,7 +31,7 @@ def scanD(D, Ck, minSupport):
         support = ssCnt[key]/numItems
         if support >= minSupport:
             retList.insert(0, key)
-            supportData[key] = support
+        supportData[key] = support
     return retList, supportData
 
 
@@ -75,27 +75,65 @@ def generateRules(L, supportData, minConf = 0.7):
                 calcConf(freqSet, H1, supportData,bigRuleList, minConf)
         return bigRuleList
 
+
 def calcConf(freqSet, H, supportData, brl, minConf =0.7):
     prunedH = []
     for conseq in H:
         conf = supportData[freqSet]/supportData[freqSet-conseq]
         if conf >= minConf:
-            print freqSet-conseq, '--->', conseq, 'conf',conf
+            print freqSet-conseq, '--->', conseq, 'conf', conf
             brl.append((freqSet-conseq, conseq, conf))
             prunedH.append(conseq)
-
     return prunedH
 
 
 def rulesFromConseq(freqSet, H, supportData, brl, minConf=0.7):
-    pass
+    m = len(H[0])
+    if (len(freqSet) > (m + 1)):
+        Hmp1 = aprioriGen(H, m + 1)
+        print("Hmp1 = ", Hmp1)
+        Hmp1 = calcConf(freqSet, Hmp1, supportData, brl, minConf)
+        print("calc Hmp1 = ", Hmp1)
+        print('len(Hmp1)=', len(Hmp1), 'len(freqSet)=', len(freqSet))
+        if (len(Hmp1) > 1):
+            print('--------------------', Hmp1)
+            rulesFromConseq(freqSet, Hmp1, supportData, brl, minConf)
+
+
+def testAprior():
+    dataSet = loadDataSet()
+    print('dataSet=', dataSet)
+    # Apriori 算法生成频繁项集以及它们的支持度
+    L1, supportData1 = apriori(dataSet, minSupport=0.7)
+    print('L(0.7): ', L1)
+    print('supportData(0.7):', supportData1)
+    print('->'*30)
+
+    # apriori 生成频繁项集以及它们的支持度
+    L2, supportData2 = apriori(dataSet, minSupport=0.5)
+    print('L(0.5): ', L2)
+    print('supportData2(0.5):', supportData2)
+
+
+def testGenerateRules():
+    # 加载测试数据集
+    dataSet = loadDataSet()
+    print('dataSet : ', dataSet)
+
+    # apriori 算法生成频繁项集以及它们的支持度
+    L1, supportData1 = apriori(dataSet, minSupport=0.5)
+    print('L(0.5): ', L1)
+    print('supportData(0.5)', supportData1)
+
+    # 生成关联规则
+    rules = generateRules(L1, supportData1, minConf=0.5)
+    print('rules : ', rules)
+
 
 def test2():
     dd = loadDataSet()
     tt = apriori(dd)
     print(tt)
-
-
 
 
 def test1():
@@ -112,7 +150,9 @@ def test1():
 
 def main():
     # test1()
-    test2()
+    # test2()
+    # testAprior()
+    testGenerateRules()
 
 
 
