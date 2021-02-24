@@ -34,6 +34,7 @@ def datatime_use():
     # plus one hour
     plus_one_hour = (datetime.datetime.strptime("2021-02-2415:57:00", "%Y-%m-%d%H:%M:%S") + datetime.timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S")
     print("plus one day: ", plus_one_day, "plus one year :", plus_one_year, " , plus one hour :", plus_one_hour)
+    
 
 def main():
     # time_use()
