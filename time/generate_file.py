@@ -50,7 +50,8 @@ class VimGenerator(generator):
                 os.makedirs(fileDir)
 
             for name in names:
-                name = name.replace("time", (stime - datetime.timedelta(hours=8)).strftime(self.namePattern))
+                # name = name.replace("time", (stime - datetime.timedelta(hours=8)).strftime(self.namePattern))
+                name = (stime - datetime.timedelta(hours=8)).strftime(self.namePattern) + name
                 file = os.path.join(fileDir, name)
                 CreateFile(file, stime)
                 print("file : ", file, ", filestamp: ", stime.strftime(self.namePattern))
@@ -142,4 +143,4 @@ if __name__ == '__main__':
     manager.register(EmsGenerator())
     sTime = datetime.datetime.strptime(startTime, "%Y-%m-%d%H:%M:%S")
     eTime = datetime.datetime.strptime(endTime, "%Y-%m-%d%H:%M:%S")
-    manager.generate_file("ems", sTime, eTime, sid, baseFile, names)
+    manager.generate_file(type, sTime, eTime, sid, baseFile, names)
