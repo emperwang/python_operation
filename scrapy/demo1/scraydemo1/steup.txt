@@ -1,0 +1,5 @@
+# 创建 一个工厂
+scrapy startproject scraydemo1
+
+# 创建一个 spider
+scrapy genspider example example.com
