@@ -1,5 +1,6 @@
 ##ignore this file##
 /target/
+scrapy/demo1/scraydemo1/scraydemo1/__pycache__/settings.cpython-38.pyc
 /RemoteSystemsTempFiles/
 venv
 target
@@ -36,6 +37,8 @@ Servers
 *.via
 *.tmp
 *.err
+*.pyc
+*.*.pyc
 # OS generated files #  
 .DS_Store  
 .DS_Store?  
