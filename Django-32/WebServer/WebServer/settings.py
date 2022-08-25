@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # 项目根目录, 在此项目中对应 E:\code-workSpace\project-python3-0\python_operation\Django-32\WebServer\
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,7 +56,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # 指定要使用模板的位置
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "template")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
