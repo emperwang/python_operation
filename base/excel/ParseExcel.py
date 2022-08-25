@@ -6,8 +6,8 @@ import os
 import sys
 import argparse
 # python2 resolve encoding
-reload(sys)
-sys.setdefaultencoding("utf8")
+# reload(sys)
+# sys.setdefaultencoding("utf8")
 
 
 class processExcel():
