@@ -62,5 +62,5 @@ Twisted==21.2.0
 twisted-iocpsupport==1.0.1
 urllib3==1.26.6
 w3lib==1.22.0
-Werkzeug==2.0.1
+Werkzeug==2.2.3
 zope.interface==5.4.0
